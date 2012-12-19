@@ -357,15 +357,15 @@ int main(int argc, char* argv[])
 
 	Options options = parseOptions(argc, argv);
 
-	if (options.displayHelp || options.subreddits.size() == 0)
-	{
-		printUsage();
-		return res;
-	}
-
 	if (options.displayVersion)
 	{
 		showVersion();
+		return res;
+	}
+
+	if (options.displayHelp || options.subreddits.size() == 0)
+	{
+		printUsage();
 		return res;
 	}
 
