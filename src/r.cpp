@@ -10,6 +10,8 @@
 #endif
 
 #ifdef __APPLE__
+#include <CoreFoundation/CFBundle.h>
+#include <ApplicationServices/ApplicationServices.h>
 #define DIR_SEP "/"
 #endif
 
@@ -42,7 +44,9 @@ void openUrl(string url)
 	ShellExecute(NULL, L"open", wurl.c_str(), NULL, NULL, SW_SHOWDEFAULT);
 #endif
 #ifdef __APPLE__
-
+  	CFURLRef urlref = CFURLCreateWithBytes(NULL, (UInt8*)url.c_str(), url.length(), kCFStringEncodingASCII, NULL);
+	LSOpenCFURLRef(urlref,0);
+	CFRelease(urlref);
 #endif
 }
 
@@ -106,7 +110,7 @@ void loadHistory(string subreddit, vector<HistoryItem>& history)
 void saveHistory(string subreddit, vector<HistoryItem>& history)
 {
 	string dataDir = getDataDir();
-	string xmlFile = dataDir + "\\" + subreddit + ".xml";
+	string xmlFile = dataDir + DIR_SEP + subreddit + ".xml";
 
 	TiXmlDocument doc(xmlFile.c_str());
 	

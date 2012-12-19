@@ -6,7 +6,7 @@ static size_t outputCallback(void *ptr, size_t size, size_t nmemb, void *data)
 	int sz = size * nmemb;
 
 	std::string* output = (std::string*)data;
-	output->append(string((char*)ptr, size));
+	output->append(string((char*)ptr, sz));
 
 	return sz;
 }

@@ -15,7 +15,7 @@ clean:
 
 # r
 r: $(OBJS)
-	$(CXX) $(CFLAGS) -lcurl -o r $(OBJS)
+	$(CXX) $(CFLAGS) -lcurl -framework CoreFoundation -framework ApplicationServices -o r $(OBJS)
 
 block_allocator.o: block_allocator.cpp
 	$(CXX) $(CFLAGS) -c block_allocator.cpp
