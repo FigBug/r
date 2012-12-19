@@ -293,7 +293,7 @@ Options parseOptions(int argc, char* argv[])
 	ultraopterr = 0;
 
 	int c;	
-	while ((c = ultragetopt (argc, argv, "lpiocanhv:")) != -1)
+	while ((c = ultragetopt (argc, argv, "lpiocan:hv")) != -1)
 	{
 		switch (c)
 		{
@@ -304,7 +304,7 @@ Options parseOptions(int argc, char* argv[])
 			case 'c': options.clearHistory      = true; break;
 			case 'a': options.openAll			= true; break;
 			case 'n': options.numToOpen			= atoi(ultraoptarg); break;
-			case 'd': options.displayHelp		= true; break;
+			case 'h': options.displayHelp		= true; break;
 			case 'v': options.displayVersion	= true; break;
 			case '?':
 				if (ultraoptopt == 'c')
@@ -314,8 +314,6 @@ Options parseOptions(int argc, char* argv[])
 				else
 					fprintf (stderr, "Unknown option character `\\x%x'.\n", ultraoptopt);
 				break;
-			default:
-				abort();
 		}
 	}
 
