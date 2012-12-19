@@ -21,12 +21,17 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="..\..\src\r.cpp" />
+    <ClCompile Include="..\..\src\ultragetopt.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\..\src\url.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\block_allocator.h" />
     <ClInclude Include="..\..\src\json.h" />
     <ClInclude Include="..\..\src\mainheaders.h" />
+    <ClInclude Include="..\..\src\r.h" />
+    <ClInclude Include="..\..\src\ultragetopt.h" />
     <ClInclude Include="..\..\src\url.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -67,7 +72,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;HAVE__STRICMP;HAVE__STRNICMP;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>mainheaders.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>..\..\libcurl\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
