@@ -5,6 +5,14 @@
 #include "ultragetopt.h"
 #include "tinyxml.h"
 
+#ifdef _WIN32
+#define DIR_SEP "\\"
+#endif
+
+#ifdef __APPLE__
+#define DIR_SEP "/"
+#endif
+
 string toStr(int v)
 {
     std::stringstream ss;
@@ -52,12 +60,26 @@ string getDataDir()
 
 	return string(tmp.begin(), tmp.end());
 #endif
+#ifdef __APPLE__
+	char path[1000];
+
+	strcpy(path, "~/.r");
+
+	wordexp_t exp_result;
+	wordexp(path, &exp_result, 0);
+	strcpy(path, exp_result.we_wordv[0]);
+	wordfree(&exp_result); 
+
+	mkdir(path, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+	return path;
+#endif
 }
 
 void loadHistory(string subreddit, vector<HistoryItem>& history)
 {
 	string dataDir = getDataDir();
-	string xmlFile = dataDir + "\\" + subreddit + ".xml";
+	string xmlFile = dataDir + DIR_SEP + subreddit + ".xml";
 
 	TiXmlDocument doc(xmlFile.c_str());
 	if (doc.LoadFile())
@@ -256,8 +278,8 @@ void printUsage()
 	printf("  -c Clear history\n");
 	printf("  -a Open all (including previously opened)\n");
 	printf("  -n Maximum number of links to open (default 30)\n");
-	printf("  -d Display help");
-	printf("  -v Display version");
+	printf("  -h Display help\n");
+	printf("  -v Display version\n");
 }
 
 Options parseOptions(int argc, char* argv[])
@@ -267,7 +289,7 @@ Options parseOptions(int argc, char* argv[])
 	ultraopterr = 0;
 
 	int c;	
-	while ((c = ultragetopt (argc, argv, "lpiocandv:")) != -1)
+	while ((c = ultragetopt (argc, argv, "lpiocanhv:")) != -1)
 	{
 		switch (c)
 		{

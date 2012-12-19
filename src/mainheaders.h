@@ -16,6 +16,10 @@
 
 #ifdef __APPLE__
 #include <curl/curl.h>
+#include <wordexp.h>
+#include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #endif
 
 using namespace std;
