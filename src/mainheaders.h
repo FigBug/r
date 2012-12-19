@@ -7,9 +7,12 @@
 #include <sstream>
 #include <vector>
 
+#include <time.h>
+
 #ifdef _WIN32
 #include <Windows.h>
 #include <Winhttp.h>
+#include <Shlobj.h>
 #endif
 
 #ifdef __APPLE__

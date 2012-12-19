@@ -26,3 +26,14 @@ struct Options
 	int numToOpen;
 	vector<string> subreddits;
 };
+
+struct HistoryItem
+{
+	HistoryItem()
+	  : date(0)
+	{
+	}
+
+	string id;
+	time_t date;
+};

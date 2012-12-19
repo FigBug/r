@@ -3,6 +3,7 @@
 #include "url.h"
 #include "json.h"
 #include "ultragetopt.h"
+#include "tinyxml.h"
 
 string toStr(int v)
 {
@@ -37,7 +38,83 @@ void openUrl(string url)
 #endif
 }
 
-void handleStory(const Options& options, json_value* story)
+string getDataDir()
+{
+#ifdef _WIN32
+	wchar_t path[MAX_PATH];
+	SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, path);
+
+	wcscat(path, L"\\r");
+
+	CreateDirectory(path, NULL);
+
+	wstring tmp(path);
+
+	return string(tmp.begin(), tmp.end());
+#endif
+}
+
+void loadHistory(string subreddit, vector<HistoryItem>& history)
+{
+	string dataDir = getDataDir();
+	string xmlFile = dataDir + "\\" + subreddit + ".xml";
+
+	TiXmlDocument doc(xmlFile.c_str());
+	if (doc.LoadFile())
+	{
+		TiXmlElement* root = doc.RootElement();
+		if (root)
+		{
+			TiXmlElement* historyNode = root->FirstChildElement("history");
+			while (historyNode)
+			{
+				HistoryItem itm;
+
+				itm.id   = historyNode->Attribute("id");
+				itm.date = atoi(historyNode->Attribute("date"));
+
+				history.push_back(itm);
+				
+				historyNode = historyNode->NextSiblingElement("history");
+			}
+		}
+	}
+}
+
+void saveHistory(string subreddit, vector<HistoryItem>& history)
+{
+	string dataDir = getDataDir();
+	string xmlFile = dataDir + "\\" + subreddit + ".xml";
+
+	TiXmlDocument doc(xmlFile.c_str());
+	
+	TiXmlElement root("histories");
+
+	for (int i = 0; i < (int)history.size(); i++)
+	{
+		TiXmlElement historyNode("history");
+
+		historyNode.SetAttribute("id", history[i].id.c_str());
+		historyNode.SetAttribute("date", (int)history[i].date);
+
+		root.InsertEndChild(historyNode);
+	}
+	doc.InsertEndChild(root);
+
+	doc.SaveFile();
+}
+
+bool isInHistory(vector<HistoryItem>& history, string id)
+{
+	for (int i = 0; i < (int)history.size(); i++)
+	{
+		if (history[i].id == id)
+			return true;
+	}
+	return false;
+}
+
+void handleStory(const Options& options, vector<HistoryItem>& history, json_value* story)
 {
 	string id;
 	string title;
@@ -71,6 +148,11 @@ void handleStory(const Options& options, json_value* story)
 			permalink = it->string_value;
 	}
 
+	bool inHistory = isInHistory(history, id);
+
+	if (inHistory && !options.openAll)
+		return;
+
 	if (options.imgurOnly && url.find("imgur.com") == string::npos)
 		return;
 
@@ -79,6 +161,14 @@ void handleStory(const Options& options, json_value* story)
 
 	if (options.openLink)
 		openUrl(url);	
+
+	if (!inHistory)
+	{
+		HistoryItem hi;
+		hi.id   = id;
+		hi.date = time(NULL);
+		history.push_back(hi);
+	}
 }
 
 bool readSubreddits(const Options& options)
@@ -89,49 +179,58 @@ bool readSubreddits(const Options& options)
 		if (options.openSubreddit)
 			openUrl("http://www.reddit.com/r/" + options.subreddits[i]);
 
+		vector<HistoryItem> history;
+		loadHistory(options.subreddits[i], history);
+
+		if (options.clearHistory)
+			history.clear();
+
 		// continue if we don't actual need to fetch the json
-		if (!options.openLink && !options.openPermalink)
-			continue;
-
-		// fetch the url from the server
-		string server = string("www.reddit.com");
-		string path   = string("/r/") + options.subreddits[i] + string("/.json?limit=") + toStr(options.numToOpen);
-
-		string page = fetchUrl(server, path);
-
-		if (page.size() == 0)
-			return false;
-
-		// convert to json
-		block_allocator allocator(1 << 10);
-		json_value* root = toJson(page, allocator);
-		if (!root)
-			return false;
-
-		// find the data we want. this is gross.
-		for (json_value* it = root->first_child; it; it = it->next_sibling)
+		if (options.openLink || options.openPermalink)
 		{
-			if (!strcmp(it->name, "data") && it->type == JSON_OBJECT)
+			// fetch the url from the server
+			string server = string("www.reddit.com");
+			string path   = string("/r/") + options.subreddits[i] + string("/.json?limit=") + toStr(options.numToOpen);
+
+			string page = fetchUrl(server, path);
+
+			if (page.size() > 0)
 			{
-				json_value* data = it;
-				for (json_value* it = data->first_child; it; it = it->next_sibling)
+				// convert to json
+				block_allocator allocator(1 << 10);
+				json_value* root = toJson(page, allocator);
+				if (root)
 				{
-					if (!strcmp(it->name, "children") && it->type == JSON_ARRAY)
+					// find the data we want. this is gross.
+					for (json_value* it = root->first_child; it; it = it->next_sibling)
 					{
-						json_value* child = it;
-						for (json_value* it = child->first_child; it; it = it->next_sibling)
+						if (!strcmp(it->name, "data") && it->type == JSON_OBJECT)
 						{
-							json_value* rec = it;
-							for (json_value* it = rec->first_child; it; it = it->next_sibling)
+							json_value* data = it;
+							for (json_value* it = data->first_child; it; it = it->next_sibling)
 							{
-								if (!strcmp(it->name, "data"))
-									handleStory(options, it);
-							}						
+								if (!strcmp(it->name, "children") && it->type == JSON_ARRAY)
+								{
+									json_value* child = it;
+									for (json_value* it = child->first_child; it; it = it->next_sibling)
+									{
+										json_value* rec = it;
+										for (json_value* it = rec->first_child; it; it = it->next_sibling)
+										{
+											if (!strcmp(it->name, "data"))
+												handleStory(options, history, it);
+										}						
+									}
+								}
+							}
 						}
 					}
 				}
 			}
 		}
+
+		if (history.size() || options.clearHistory)
+			saveHistory(options.subreddits[i], history);
 	}
 
 	return true;
