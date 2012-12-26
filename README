@@ -1,2 +1,26 @@
 Command line cross platform reddit reader 
-Windows, Mac OS, Linux
+Windows & Mac OS
+
+Usage:
+
+r: Copyright 2012 Roland Rabien
+  usage: r [-lpiocadv] [-n max] subreddit
+  -l Open links (default)
+  -p Open permalinks
+  -i Open Imgur links only
+  -o Open subreddit
+  -c Clear history
+  -a Open all (including previously opened)
+  -n Maximum number of links to open (default 30)
+  -h Display help
+  -v Display version
+
+Examples:
+
+r -n 100 pics  # open lastest 100 links in pics
+r -p jokes     # open 30 lastest comments pages in jokes
+r -o vertical  # go to the veritcal subreddit
+
+Download:
+Mac - http://downloads.rabien.com/r.tar.gz
+Windows - http://downloads.rabien.com/r.zip
