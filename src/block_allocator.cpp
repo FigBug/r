@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <memory.h>
 #include <algorithm>
 #include "block_allocator.h"
