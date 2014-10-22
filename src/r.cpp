@@ -45,7 +45,14 @@ void openUrl(string url)
 #endif
 #ifdef __APPLE__
   	CFURLRef urlref = CFURLCreateWithBytes(NULL, (UInt8*)url.c_str(), url.length(), kCFStringEncodingASCII, NULL);
-	LSOpenCFURLRef(urlref,0);
+  	int cnt = 0;
+	while (LSOpenCFURLRef(urlref,0) != 0)
+	{
+		usleep(10000);
+		cnt++;
+		if (cnt > 100)
+			break;
+	}
 	CFRelease(urlref);
 #endif
 }
