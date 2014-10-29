@@ -15,6 +15,8 @@
 #define DIR_SEP "/"
 #endif
 
+int gTotal = 0;
+
 string toStr(int v)
 {
     std::stringstream ss;
@@ -90,7 +92,7 @@ string getDataDir()
 void loadHistory(string subreddit, vector<HistoryItem>& history)
 {
 	string dataDir = getDataDir();
-	string xmlFile = dataDir + DIR_SEP + subreddit + ".xml";
+	string xmlFile = dataDir + DIR_SEP + subreddit;
 
 	TiXmlDocument doc(xmlFile.c_str());
 	if (doc.LoadFile())
@@ -117,7 +119,7 @@ void loadHistory(string subreddit, vector<HistoryItem>& history)
 void saveHistory(string subreddit, vector<HistoryItem>& history)
 {
 	string dataDir = getDataDir();
-	string xmlFile = dataDir + DIR_SEP + subreddit + ".xml";
+	string xmlFile = dataDir + DIR_SEP + subreddit;
 
 	TiXmlDocument doc(xmlFile.c_str());
 	
@@ -202,12 +204,16 @@ void handleStory(const Options& options, vector<HistoryItem>& history, json_valu
 		hi.date = time(NULL);
 		history.push_back(hi);
 	}
+	gTotal++;
 }
 
 bool readSubreddits(const Options& options)
 {
 	for (int i = 0; i < (int)options.subreddits.size(); i++)
 	{
+		if (gTotal >= options.maxToOpen)
+			break;
+
 		// open subreddit
 		if (options.openSubreddit)
 			openUrl("http://www.reddit.com/r/" + options.subreddits[i]);
@@ -252,6 +258,8 @@ bool readSubreddits(const Options& options)
 										{
 											if (!strcmp(it->name, "data"))
 												handleStory(options, history, it);
+											if (gTotal >= options.maxToOpen)
+												goto out;
 										}						
 									}
 								}
@@ -261,7 +269,7 @@ bool readSubreddits(const Options& options)
 				}
 			}
 		}
-
+out:
 		if (history.size() || options.clearHistory)
 			saveHistory(options.subreddits[i], history);
 	}
@@ -288,7 +296,8 @@ void printUsage()
 	printf("  -o Open subreddit\n");
 	printf("  -c Clear history\n");
 	printf("  -a Open all (including previously opened)\n");
-	printf("  -n Maximum number of links to open (default 30)\n");
+	printf("  -n Maximum number of links to open per subreddit (default 30)\n");
+	printf("  -x Maximum number of links to open in total (default 50)\n");
 	printf("  -h Display help\n");
 	printf("  -v Display version\n");
 }
@@ -300,17 +309,18 @@ Options parseOptions(int argc, char* argv[])
 	ultraopterr = 0;
 
 	int c;	
-	while ((c = ultragetopt (argc, argv, "lpiocan:hv")) != -1)
+	while ((c = ultragetopt (argc, argv, "lpiocan:x:hv")) != -1)
 	{
 		switch (c)
 		{
-			case 'l': options.openLink          = true; break;
-			case 'p': options.openPermalink     = true; break;
-			case 'i': options.imgurOnly			= true; break;
-			case 'o': options.openSubreddit     = true; break;
-			case 'c': options.clearHistory      = true; break;
-			case 'a': options.openAll			= true; break;
-			case 'n': options.numToOpen			= atoi(ultraoptarg); break;
+			case 'l': options.openLink          	= true; break;
+			case 'p': options.openPermalink     	= true; break;
+			case 'i': options.imgurOnly		= true; break;
+			case 'o': options.openSubreddit     	= true; break;
+			case 'c': options.clearHistory      	= true; break;
+			case 'a': options.openAll		= true; break;
+			case 'n': options.numToOpen		= atoi(ultraoptarg); break;
+			case 'x': options.maxToOpen		= atoi(ultraoptarg); break;
 			case 'h': options.displayHelp		= true; break;
 			case 'v': options.displayVersion	= true; break;
 			case '?':
@@ -334,6 +344,10 @@ Options parseOptions(int argc, char* argv[])
 
 	if (options.numToOpen == 0)
 		options.numToOpen = 30;
+	if (options.maxToOpen == 0)
+		options.maxToOpen = 50;
+	if (options.numToOpen > options.maxToOpen)
+		options.maxToOpen = options.numToOpen;
 
 	for (int index = ultraoptind; index < argc; index++)
 		options.subreddits.push_back(argv[index]);

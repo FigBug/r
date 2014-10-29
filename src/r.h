@@ -11,7 +11,8 @@ struct Options
 		openAll(false),
 		displayHelp(false),
 		displayVersion(false),
-		numToOpen(30)
+		numToOpen(30),
+		maxToOpen(50)
 	{
 	}
 
@@ -24,6 +25,7 @@ struct Options
 	bool displayHelp;
 	bool displayVersion;
 	int numToOpen;
+	int maxToOpen;
 	vector<string> subreddits;
 };
 
