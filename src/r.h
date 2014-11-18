@@ -5,7 +5,7 @@ struct Options
 	Options()
       : openLink(false),
 		openPermalink(false),
-		imgurOnly(false),
+		imageOnly(false),
 		openSubreddit(false),
 		clearHistory(false),
 		openAll(false),
@@ -18,7 +18,7 @@ struct Options
 
 	bool openLink;
 	bool openPermalink;
-	bool imgurOnly;
+	bool imageOnly;
 	bool openSubreddit;
 	bool clearHistory;
 	bool openAll;

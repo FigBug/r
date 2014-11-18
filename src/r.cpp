@@ -149,6 +149,16 @@ bool isInHistory(vector<HistoryItem>& history, string id)
 	return false;
 }
 
+bool hasEnding(std::string const &fullString, std::string const &ending)
+{
+    if (fullString.length() >= ending.length()) {
+        return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
+    } else {
+        return false;
+    }
+}
+
+
 void handleStory(const Options& options, vector<HistoryItem>& history, json_value* story)
 {
 	string id;
@@ -188,8 +198,20 @@ void handleStory(const Options& options, vector<HistoryItem>& history, json_valu
 	if (inHistory && !options.openAll)
 		return;
 
-	if (options.imgurOnly && url.find("imgur.com") == string::npos)
-		return;
+	if (options.imageOnly)
+	{
+		bool image = false;
+		
+		if (url.find("imgur.com") != string::npos)	image = true;
+		if (url.find("gfycat.com") != string::npos)	image = true;
+
+		if (hasEnding(url, ".gif")) image = true;
+		if (hasEnding(url, ".jpg")) image = true;
+		if (hasEnding(url, ".png")) image = true;
+		
+		if (!image)
+			return;
+	}
 
 	if (options.openPermalink)
 		openUrl("http://reddit.com" + permalink);
@@ -277,22 +299,13 @@ out:
 	return true;
 }
 
-	bool openLink;
-	bool openPermalink;
-	bool imgurOnly;
-	bool openSubreddit;
-	bool clearHistory;
-	bool openAll;
-	int numToOpen;
-	string subreddit;
-
 void printUsage()
 {
 	printf("r: Copyright 2012 Roland Rabien\n");
 	printf("  usage: r [-lpiocadv] [-n max] subreddit\n");
 	printf("  -l Open links (default)\n");
 	printf("  -p Open permalinks\n");
-	printf("  -i Open Imgur links only\n");
+	printf("  -i Open image links only\n");
 	printf("  -o Open subreddit\n");
 	printf("  -c Clear history\n");
 	printf("  -a Open all (including previously opened)\n");
@@ -315,7 +328,7 @@ Options parseOptions(int argc, char* argv[])
 		{
 			case 'l': options.openLink          	= true; break;
 			case 'p': options.openPermalink     	= true; break;
-			case 'i': options.imgurOnly		= true; break;
+			case 'i': options.imageOnly		= true; break;
 			case 'o': options.openSubreddit     	= true; break;
 			case 'c': options.clearHistory      	= true; break;
 			case 'a': options.openAll		= true; break;
