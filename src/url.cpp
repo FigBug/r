@@ -3,7 +3,7 @@
 #ifdef __APPLE__
 static size_t outputCallback(void *ptr, size_t size, size_t nmemb, void *data)
 {
-	int sz = size * nmemb;
+	int sz = int(size * nmemb);
 
 	std::string* output = (std::string*)data;
 	output->append(string((char*)ptr, sz));
@@ -16,7 +16,7 @@ string fetchUrl(string server, string path)
 	CURL *curl;
 	CURLcode res;
 
-	string url = string("http://") + server + path;
+	string url = string("https://") + server + path;
 	string output;
 
 	curl = curl_easy_init();

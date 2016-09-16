@@ -29,7 +29,7 @@ extern "C" {
 # define required_argument 1
 # define optional_argument 2
 
-struct option {
+struct uoption {
     const char *name;	/* Name of the option */
     int has_arg;	/* Does the option take an argument? */
     int *flag;		/* Location to store val when option encountered */
@@ -43,15 +43,15 @@ extern int ultraoptind, ultraopterr, ultraoptopt, ultraoptreset;
 int ultragetopt(int argc, char *const argv[], const char *optstring);
 
 int ultragetopt_long(int argc, char *const argv[], const char *shortopts,
-		     const struct option *longopts, int *indexptr);
+		     const struct uoption *longopts, int *indexptr);
 
 int ultragetopt_long_only(int argc, char *const argv[], const char *shortopts,
-			  const struct option *longopts, int *indexptr);
+			  const struct uoption *longopts, int *indexptr);
 
 int ultragetopt_dos(int argc, char * const argv[], const char *optstring);
 
 int ultragetopt_long_dos(int argc, char *const argv[], const char *shortopts,
-		    	 const struct option *longopts, int *indexptr);
+		    	 const struct uoption *longopts, int *indexptr);
 
 /* Getopt with modifiable (tunable) behavior - also the backend for all other
  * getopt functions.
@@ -62,7 +62,7 @@ int ultragetopt_long_dos(int argc, char *const argv[], const char *shortopts,
  * flags - see README for list of accepted flags
  */
 int ultragetopt_tunable(int argc, char *const argv[], const char *shortopts,
-			const struct option *longopts, int *indexptr,
+			const struct uoption *longopts, int *indexptr,
 			const char *assigners, const char *optleaders,
 			int flags);
 

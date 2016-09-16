@@ -254,7 +254,7 @@ static void print_error(int flags, const char *template, ...)
  * If it has an adjacent argument, return pointer to it in longarg, else NULL
  */
 static int match_longopt(int curopt, char *const argv[],
-			 const struct option *longopts, const char *assigners,
+			 const struct uoption *longopts, const char *assigners,
 			 const char *optleaders, int flags, char **longarg)
 {
     size_t alen, optnamelen = 0;
@@ -346,7 +346,7 @@ static int match_longopt(int curopt, char *const argv[],
 /* Check if an option has a separate argument (in the following argv[] index) */
 static int has_separate_argument(int curopt, int argc, char *const argv[],
 				 const char *shortopts,
-				 const struct option *longopts,
+				 const struct uoption *longopts,
 				 const char *assigners, const char *optleaders,
 				 int flags)
 {
@@ -402,7 +402,7 @@ static int has_separate_argument(int curopt, int argc, char *const argv[],
  * Returns number of words shifted forward
  */
 static int permute_options(int argc, char *argv[], const char *shortopts,
-			   const struct option *longopts,
+			   const struct uoption *longopts,
 			   const char *assigners, const char *optleaders,
 			   int flags)
 {
@@ -454,13 +454,13 @@ static int permute_options(int argc, char *argv[], const char *shortopts,
 /* Handle a longopts[longind] matches argv[ultraoptind] actions */
 static int handle_longopt(int longind, char *longarg, int noseparg,
 			  char *const argv[],
-			  const struct option *longopts, int *indexptr,
+			  const struct uoption *longopts, int *indexptr,
 			  const char *optleaders, int flags)
 {
     /* Handle assignment arguments */
     if (longarg && longopts[longind].has_arg == no_argument) {
 	print_error(flags, errorarg, argv[0],
-		    longarg-argv[ultraoptind]-1, argv[ultraoptind]);
+		    (int)(longarg-argv[ultraoptind]-1), argv[ultraoptind]);
 	/* TODO:  What is a good value to put in ultraoptopt? */
 	/* Looks like GNU getopt() uses val */
 	ultraoptopt = longopts[longind].val;
@@ -487,7 +487,7 @@ static int handle_longopt(int longind, char *longarg, int noseparg,
 	    || (!(flags & UGO_HYPHENARG)
 		&& strchr(optleaders, argv[ultraoptind+1][0])))) {
 	print_error(flags, errornoarg, argv[0],
-		    strlen(argv[ultraoptind]), argv[ultraoptind]);
+		    (int)strlen(argv[ultraoptind]), argv[ultraoptind]);
 	ultraoptind++;
 	if (flags & UGO_MISSINGCOLON)
 	    return ':';
@@ -521,7 +521,7 @@ static int handle_longopt(int longind, char *longarg, int noseparg,
 }
 
 int ultragetopt_tunable(int argc, char *const argv[], const char *shortopts,
-			const struct option *longopts, int *indexptr,
+			const struct uoption *longopts, int *indexptr,
 			const char *assigners, const char *optleaders,
 			int flags)
 {
@@ -608,10 +608,10 @@ int ultragetopt_tunable(int argc, char *const argv[], const char *shortopts,
 	if (longind < 0) {
 	    if (longarg == NULL)
 		print_error(flags, erroropt, argv[0],
-			    strlen(argv[ultraoptind]), argv[ultraoptind]);
+			    (int)strlen(argv[ultraoptind]), argv[ultraoptind]);
 	    else
 		print_error(flags, erroropt, argv[0],
-			    longarg - argv[ultraoptind] - 1, argv[ultraoptind]);
+			    (int)(longarg - argv[ultraoptind] - 1), argv[ultraoptind]);
 
 	    /* TODO:  What is a good value for optopt in this case? */
 	    /*	      Looks like BSD uses 0 */
@@ -762,7 +762,7 @@ int ultragetopt(int argc, char * const argv[], const char *optstring)
  * Leading + and - under consideration (behavior violates POSIX...)
  */
 int ultragetopt_long(int argc, char *const argv[], const char *shortopts,
-		const struct option *longopts, int *indexptr)
+		const struct uoption *longopts, int *indexptr)
 {
     return ultragetopt_tunable(argc, argv, shortopts, longopts, indexptr,
 			       unixassigners, unixleaders,
@@ -771,7 +771,7 @@ int ultragetopt_long(int argc, char *const argv[], const char *shortopts,
 
 /* GNU getopt_long_only workalike */
 int ultragetopt_long_only(int argc, char *const argv[], const char *shortopts,
-			  const struct option *longopts, int *indexptr)
+			  const struct uoption *longopts, int *indexptr)
 {
     return ultragetopt_tunable(argc, argv, shortopts, longopts, indexptr,
 			       unixassigners, unixleaders,
@@ -787,7 +787,7 @@ int ultragetopt_dos(int argc, char * const argv[], const char *optstring)
 }
 
 int ultragetopt_long_dos(int argc, char *const argv[], const char *shortopts,
-			 const struct option *longopts, int *indexptr)
+			 const struct uoption *longopts, int *indexptr)
 {
     return ultragetopt_tunable(argc, argv, shortopts, longopts, indexptr,
 			       dosassigners, dosleaders,

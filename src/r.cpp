@@ -301,7 +301,7 @@ out:
 
 void printUsage()
 {
-	printf("r: Copyright 2012 Roland Rabien\n");
+	printf("r: Copyright 2016 Roland Rabien\n");
 	printf("  usage: r [-lpiocadv] [-n max] subreddit\n");
 	printf("  -l Open links (default)\n");
 	printf("  -p Open permalinks\n");
@@ -370,7 +370,7 @@ Options parseOptions(int argc, char* argv[])
 
 bool showVersion()
 {
-	printf("r v1.0.0 by Roland Rabien (figbug@gmail.com) %s.\n", __DATE__);
+	printf("r v1.0.1 by Roland Rabien (figbug@gmail.com) %s.\n", __DATE__);
 
 	return true;
 }
