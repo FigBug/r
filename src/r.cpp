@@ -24,6 +24,21 @@ string toStr(int v)
     return ss.str();
 }
 
+void replaceAll(string &s, const string &search, const string &replace)
+{
+    for (size_t pos = 0; ; pos += replace.length())
+    {
+        // Locate the substring to replace
+        pos = s.find(search, pos);
+        if(pos == string::npos)
+            break;
+        
+        // Replace by erasing and inserting
+        s.erase(pos, search.length());
+        s.insert(pos, replace);
+    }
+}
+
 json_value* toJson(string json, block_allocator& allocator)
 {
 	char* errorPos  = 0;
@@ -193,6 +208,8 @@ void handleStory(const Options& options, vector<HistoryItem>& history, json_valu
 			permalink = it->string_value;
 	}
 
+    replaceAll(url, "&amp;", "&");
+    
 	bool inHistory = isInHistory(history, id);
 
 	if (inHistory && !options.openAll)
