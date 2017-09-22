@@ -189,23 +189,23 @@ void handleStory(const Options& options, vector<HistoryItem>& history, json_valu
 	for (json_value* it = story->first_child; it; it = it->next_sibling)
 	{
 		if (!strcmp(it->name, "id")) 
-			id = it->string_value;
+			id = it->string_value ? it->string_value : "";
 		if (!strcmp(it->name, "title")) 
-			title = it->string_value;
+			title = it->string_value ? it->string_value : "";
 		if (!strcmp(it->name, "selftext")) 
-			selftext = it->string_value;
+			selftext = it->string_value ? it->string_value : "";
 		if (!strcmp(it->name, "score")) 
 			score = it->int_value;
 		if (!strcmp(it->name, "over_18")) 
 			over_18 = it->int_value ? true : false;
 		if (!strcmp(it->name, "thumbnail")) 
-			thumbnail = it->string_value;
+            thumbnail = it->string_value ? it->string_value : "";
 		if (!strcmp(it->name, "url")) 
-			url = it->string_value;
+			url = it->string_value ? it->string_value : "";
 		if (!strcmp(it->name, "created_utc")) 
 			created_utc = it->float_value;
 		if (!strcmp(it->name, "permalink")) 
-			permalink = it->string_value;
+			permalink = it->string_value ? it->string_value : "";
 	}
 
     replaceAll(url, "&amp;", "&");
